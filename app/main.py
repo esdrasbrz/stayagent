@@ -8,7 +8,9 @@ from app.storage import InMemoryJobStore
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="StayAgent API", description="Async Stay Crawler for multiple platforms")
+app = FastAPI(
+    title="StayAgent API", description="Async Stay Crawler for multiple platforms"
+)
 
 # Apply basic CORS for potential frontend
 app.add_middleware(
@@ -24,6 +26,7 @@ store = InMemoryJobStore()
 set_job_store(store)
 
 app.include_router(search_router, prefix="/api/v1/search", tags=["Search"])
+
 
 @app.get("/")
 async def root():

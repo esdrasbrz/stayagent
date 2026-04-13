@@ -4,13 +4,16 @@ import asyncio
 
 from app.models import JobStatus, JobStateEnum, StayResult
 
+
 class JobStore(ABC):
     @abstractmethod
     async def create_job(self, operation_id: str) -> None:
         pass
 
     @abstractmethod
-    async def update_job_status(self, operation_id: str, status: JobStateEnum, error: Optional[str] = None) -> None:
+    async def update_job_status(
+        self, operation_id: str, status: JobStateEnum, error: Optional[str] = None
+    ) -> None:
         pass
 
     @abstractmethod
@@ -44,11 +47,12 @@ class InMemoryJobStore(JobStore):
 
     async def create_job(self, operation_id: str) -> None:
         self._statuses[operation_id] = JobStatus(
-            operation_id=operation_id,
-            status=JobStateEnum.PENDING
+            operation_id=operation_id, status=JobStateEnum.PENDING
         )
 
-    async def update_job_status(self, operation_id: str, status: JobStateEnum, error: Optional[str] = None) -> None:
+    async def update_job_status(
+        self, operation_id: str, status: JobStateEnum, error: Optional[str] = None
+    ) -> None:
         if operation_id in self._statuses:
             self._statuses[operation_id].status = status
             if error:
