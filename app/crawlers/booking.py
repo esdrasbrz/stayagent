@@ -68,13 +68,12 @@ class BookingCrawler(BaseCrawler):
                                 external_url = href if href.startswith("http") else f"https://www.booking.com{href}"
 
                         price_total = None
+                        currency = "USD"
                         price_loc = listing.locator('span[data-testid="price-and-discounted-price"]')
                         if await price_loc.count() > 0:
                             price_text = await price_loc.first.inner_text()
-                            import re
-                            nums = re.findall(r'[\d,]+', price_text)
-                            if nums:
-                                price_total = float(nums[0].replace(',', ''))
+                            from app.crawlers.utils import parse_price_and_currency
+                            price_total, currency = parse_price_and_currency(price_text)
 
                         rating = None
                         rating_loc = listing.locator('div[data-testid="review-score"] > div')
@@ -99,7 +98,7 @@ class BookingCrawler(BaseCrawler):
                             price_total=price_total,
                             rating=rating,
                             image_urls=image_urls,
-                            currency="USD",
+                            currency=currency,
                         ))
                     except Exception as e:
                         logger.error(f"Error parsing Booking listing: {e}")

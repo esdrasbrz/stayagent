@@ -58,16 +58,14 @@ class AirbnbCrawler(BaseCrawler):
                         if await title_loc.count() > 0:
                             name = await title_loc.first.inner_text()
 
-                        # Price
+                        # Price and Currency extraction
                         price_per_night = None
-                        price_loc = listing.locator('span:has-text("$")')
+                        currency = "USD"
+                        price_loc = listing.locator('span:has-text("$"), span:has-text("€"), span:has-text("£"), span:has-text("R$")')
                         if await price_loc.count() > 0:
                             price_text = await price_loc.first.inner_text()
-                            # Clean up e.g. "$120" -> 120.0
-                            import re
-                            nums = re.findall(r'\d+', price_text.replace(',', ''))
-                            if nums:
-                                price_per_night = float(nums[0])
+                            from app.crawlers.utils import parse_price_and_currency
+                            price_per_night, currency = parse_price_and_currency(price_text)
 
                         # Image
                         image_urls = []
@@ -83,7 +81,7 @@ class AirbnbCrawler(BaseCrawler):
                             name=name or f"Airbnb Listing {i}",
                             price_per_night=price_per_night,
                             image_urls=image_urls,
-                            currency="USD",
+                            currency=currency,
                         ))
                     except Exception as e:
                         logger.error(f"Error parsing Airbnb listing: {e}")
