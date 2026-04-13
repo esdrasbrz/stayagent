@@ -1,0 +1,25 @@
+info:
+  name: create-search-task
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://{{url}}/api/v1/search
+  body:
+    type: json
+    data: |-
+      {
+        "location": "Barra da Tijuca, Rio de Janeiro, Brazil",
+        "checkin": "2026-12-15",
+        "checkout": "2026-12-22",
+        "guests": 2,
+        "limit": 10
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

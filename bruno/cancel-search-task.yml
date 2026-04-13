@@ -1,0 +1,19 @@
+info:
+  name: cancel-search-task
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: http://{{url}}/api/v1/search/:id/cancel
+  params:
+    - name: id
+      value: 1a9758f6-c3df-42d7-a662-58f1320ac910
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

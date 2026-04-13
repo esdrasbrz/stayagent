@@ -1,0 +1,4 @@
+name: dev
+variables:
+  - name: url
+    value: localhost:8000

@@ -1,0 +1,19 @@
+info:
+  name: get-search-results
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: http://{{url}}/api/v1/search/:id/results
+  params:
+    - name: id
+      value: 1a9758f6-c3df-42d7-a662-58f1320ac910
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

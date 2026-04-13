@@ -208,3 +208,8 @@ __marimo__/
 
 .DS_Store
 .pre-commit-cache/
+
+# Ignore Bruno's local environment overrides (where you keep secrets)
+.bruno/
+node_modules/
+*.env
