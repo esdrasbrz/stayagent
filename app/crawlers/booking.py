@@ -5,6 +5,10 @@ from playwright.async_api import async_playwright
 
 from app.models import SearchRequest, StayResult, PlatformEnum
 from app.crawlers.base import BaseCrawler
+from app.crawlers.utils import (
+    calculate_prices,
+    parse_price_and_currency,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -81,15 +85,18 @@ class BookingCrawler(BaseCrawler):
                                 )
 
                         price_total = None
+                        price_per_night = None
                         currency = "USD"
                         price_loc = listing.locator(
                             'span[data-testid="price-and-discounted-price"]'
                         )
                         if await price_loc.count() > 0:
                             price_text = await price_loc.first.inner_text()
-                            from app.crawlers.utils import parse_price_and_currency
-
                             price_total, currency = parse_price_and_currency(price_text)
+                            if price_total is not None:
+                                price_per_night = calculate_prices(
+                                    price_total, request.checkin, request.checkout
+                                )
 
                         rating = None
                         rating_loc = listing.locator(
@@ -115,6 +122,7 @@ class BookingCrawler(BaseCrawler):
                                 external_url=external_url,
                                 name=name or f"Booking Listing {i}",
                                 price_total=price_total,
+                                price_per_night=price_per_night,
                                 rating=rating,
                                 image_urls=image_urls,
                                 currency=currency,

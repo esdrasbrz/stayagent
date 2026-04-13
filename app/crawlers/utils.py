@@ -1,5 +1,6 @@
 import re
 from typing import Tuple, Optional
+from datetime import date
 
 # Mapping commonly used symbols to 3-letter currency codes
 CURRENCY_MAP = {
@@ -91,3 +92,14 @@ def parse_price_and_currency(text: str) -> Tuple[Optional[float], str]:
     currency_code = CURRENCY_MAP.get(remaining, remaining)
 
     return price_val, currency_code
+
+
+def calculate_prices(price_total: float, checkin: date, checkout: date) -> float:
+    """
+    Calculates the price_per_night based on the total price and checkin/checkout dates.
+    Returns price_per_night.
+    """
+    nights = (checkout - checkin).days
+    if nights <= 0:
+        return 0.0
+    return round(price_total / nights, 2)

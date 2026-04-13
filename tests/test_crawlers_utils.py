@@ -1,5 +1,6 @@
 import pytest
-from app.crawlers.utils import parse_price_and_currency
+from datetime import date, timedelta
+from app.crawlers.utils import parse_price_and_currency, calculate_prices
 
 
 @pytest.mark.parametrize(
@@ -26,3 +27,18 @@ def test_parse_price_and_currency(input_text, expected_output):
 def test_parse_price_and_currency_invalid():
     # Should handle text without numbers gracefully
     assert parse_price_and_currency("No price here")[0] is None
+
+
+def test_calculate_prices():
+    checkin = date.today()
+    checkout = checkin + timedelta(days=5)  # 5 nights
+
+    per_night = calculate_prices(500.0, checkin, checkout)
+    assert per_night == 100.0
+
+    per_night = calculate_prices(1500.50, checkin, checkout)
+    assert per_night == 300.10
+
+    # 0 nights (invalid date range or same day) should return 0.0
+    per_night = calculate_prices(500.0, checkin, checkin)
+    assert per_night == 0.0

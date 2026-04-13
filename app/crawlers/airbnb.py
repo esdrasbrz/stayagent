@@ -5,6 +5,10 @@ import urllib.parse
 
 from app.models import SearchRequest, StayResult, PlatformEnum
 from app.crawlers.base import BaseCrawler
+from app.crawlers.utils import (
+    calculate_prices,
+    parse_price_and_currency,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -71,17 +75,19 @@ class AirbnbCrawler(BaseCrawler):
 
                         # Price and Currency extraction
                         price_per_night = None
+                        price_total = None
                         currency = "USD"
+
                         price_loc = listing.locator(
                             'span:has-text("$"), span:has-text("€"), span:has-text("£"), span:has-text("R$")'
                         )
                         if await price_loc.count() > 0:
                             price_text = await price_loc.first.inner_text()
-                            from app.crawlers.utils import parse_price_and_currency
-
-                            price_per_night, currency = parse_price_and_currency(
-                                price_text
-                            )
+                            price_total, currency = parse_price_and_currency(price_text)
+                            if price_total is not None:
+                                price_per_night = calculate_prices(
+                                    price_total, request.checkin, request.checkout
+                                )
 
                         # Image
                         image_urls = []
@@ -96,6 +102,7 @@ class AirbnbCrawler(BaseCrawler):
                                 platform=PlatformEnum.AIRBNB,
                                 external_url=external_url,
                                 name=name or f"Airbnb Listing {i}",
+                                price_total=price_total,
                                 price_per_night=price_per_night,
                                 image_urls=image_urls,
                                 currency=currency,
