@@ -1,6 +1,8 @@
 import re
-from typing import Tuple, Optional
+from typing import List, Tuple, Optional
 from datetime import date
+
+from playwright.async_api import Locator
 
 # Mapping commonly used symbols to 3-letter currency codes
 CURRENCY_MAP = {
@@ -103,3 +105,43 @@ def calculate_prices(price_total: float, checkin: date, checkout: date) -> float
     if nights <= 0:
         return 0.0
     return round(price_total / nights, 2)
+
+
+async def find_first_matching(parent: Locator, selectors: List[str]) -> List[Locator]:
+    """
+    Try each selector in order against the parent locator.
+    Returns all matching elements from the first selector that produces results.
+
+    Args:
+        parent: A Playwright Locator (e.g., page or a container element).
+        selectors: Ordered list of CSS selectors to try.
+
+    Returns:
+        List of matching Locator elements, or empty list if none match.
+    """
+    for selector in selectors:
+        locator = parent.locator(selector)
+        count = await locator.count()
+        if count > 0:
+            return await locator.all()
+    return []
+
+
+async def find_first_element(
+    parent: Locator, selectors: List[str]
+) -> Optional[Locator]:
+    """
+    Try each selector in order and return the first single matching element.
+
+    Args:
+        parent: A Playwright Locator (e.g., a listing card).
+        selectors: Ordered list of CSS selectors to try.
+
+    Returns:
+        The first matching Locator, or None if no selector matches.
+    """
+    for selector in selectors:
+        locator = parent.locator(selector)
+        if await locator.count() > 0:
+            return locator.first
+    return None
